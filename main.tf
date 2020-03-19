@@ -1,3 +1,23 @@
+data "aws_iam_user" "brianmccarthy" {
+  user_name = "brian.mccarthy"
+}
+
+data "aws_iam_user" "zakharkleyman" {
+  user_name = "zakhar.kleyman"
+}
+
+data "aws_iam_user" "vitaliilirnyk" {
+  user_name = "vitalii.lirnyk"
+}
+
+data "aws_iam_user" "jasonwalsh" {
+  user_name = "jason.walsh"
+}
+
+data "aws_iam_user" "johnchen" {
+  user_name = "john.chen"
+}
+
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
@@ -52,4 +72,31 @@ module "my-cluster" {
       
     }
   }
+  map_users = [
+    {
+      userarn  = data.aws_iam_user.brianmccarthy.arn
+      username = data.aws_iam_user.brianmccarthy.user_name
+      groups   = ["system:masters"]
+    },
+    {
+      userarn  = data.aws_iam_user.zakharkleyman.arn
+      username = data.aws_iam_user.zakharkleyman.user_name
+      groups   = ["system:masters"]
+    },
+    {
+      userarn  = data.aws_iam_user.vitaliilirnyk.arn
+      username = data.aws_iam_user.vitaliilirnyk.user_name
+      groups   = ["system:masters"]
+    },
+    {
+      userarn  = data.aws_iam_user.jasonwalsh.arn
+      username = data.aws_iam_user.jasonwalsh.user_name
+      groups   = ["system:masters"]
+    },
+    {
+      userarn  = data.aws_iam_user.johnchen.arn
+      username = data.aws_iam_user.johnchen.user_name
+      groups   = ["system:masters"]
+    },
+  ]
 }
