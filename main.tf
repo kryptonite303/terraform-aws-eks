@@ -18,6 +18,11 @@ data "aws_iam_user" "johnchen" {
   user_name = "john.chen"
 }
 
+resource "aws_eip" "nat" {
+  count = 2
+  vpc = true
+}
+
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
@@ -28,8 +33,12 @@ module "vpc" {
   private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
   public_subnets  = ["10.0.101.0/24", "10.0.102.0/24"]
 
-  enable_nat_gateway = true
-  enable_vpn_gateway = true
+  enable_nat_gateway        = true
+  enable_vpn_gateway        = true
+  #map_public_ip_on_launch  = true
+  enable_dns_hostnames      = true
+  reuse_nat_ips             = true
+  external_nat_ip_ids       = "${aws_eip.nat.*.id}"
 
   tags = {
     Terraform = "true"
@@ -58,18 +67,18 @@ module "my-cluster" {
   source          = "terraform-aws-modules/eks/aws"
   cluster_name    = "my-cluster"
   cluster_version = "1.15"
-  subnets         = [module.vpc.private_subnets[0], module.vpc.private_subnets[1]]
+  subnets         = module.vpc.public_subnets
   vpc_id          = module.vpc.vpc_id
 
   worker_groups = [
     {
       instance_type = "m4.large"
       asg_max_size  = 5
+      subnets = module.vpc.private_subnets
     }
   ]
   node_groups = {
     my-node-group = {
-      
     }
   }
   map_users = [
