@@ -64,19 +64,32 @@ provider "kubernetes" {
 
 module "my-cluster" {
   source          = "terraform-aws-modules/eks/aws"
-  cluster_name    = "my-cluster0"
+  cluster_name    = "my-cluster"
   cluster_version = "1.15"
   subnets         = module.vpc.private_subnets
   vpc_id          = module.vpc.vpc_id
 
-  worker_groups = [
-    {
-      instance_type = "m4.large"
-      asg_max_size  = 5
-    }
-  ]
+  #worker_groups = [
+  #  {
+  #    instance_type = "m4.large"
+  #    asg_max_size  = 5
+  #  }
+  #]
   node_groups = {
     my-node-group = {
+      desired_capacity = 1
+      max_capacity     = 5
+      min_capacity     = 1
+
+      instance_type = "m4.large"
+      k8s_labels = {
+        Environment = "test"
+        GithubRepo  = "terraform-aws-eks"
+        GithubOrg   = "terraform-aws-modules"
+      }
+      additional_tags = {
+        ExtraTag = "example"
+      }
     }
   }
   map_users = [
